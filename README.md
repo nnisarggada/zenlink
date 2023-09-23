@@ -22,10 +22,10 @@ Follow these steps to set up and run Zen Link on your server.
 
 ```bash
 # Clone the Zen Link repository to your server
-git clone https://github.com/yourusername/zen-link
+git clone https://github.com/nnisarggada/zenlink
 
 # Navigate to the project directory
-cd zen-link
+cd zenlink
 
 # Create a Python virtual environment and activate it
 python -m venv env
