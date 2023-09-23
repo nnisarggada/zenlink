@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 # -------------------------------------------------------------------
 
 URL = "localhost" # Url of the hosted app
-MINUTES_TO_EXPIRE = 1 # Number of minutes before a short URL expires
+MINUTES_TO_EXPIRE = 30 # Number of minutes before a short URL expires
 
 # -------------------------------------------------------------------
 
