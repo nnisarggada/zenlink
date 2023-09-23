@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔗 ZEN LINK | URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://kit.fontawesome.com/0b92670209.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      function clearInputs() {
+        document.getElementById("original_url").value = "";
+        document.getElementById("short_url").value = "";
+      }
+      window.onload = clearInputs;
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              poppins: ["Poppins"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body
+    class="bg-neutral-950 text-white font-poppins flex flex-col items-center justify-center"
+  >
+    <nav
+      class="absolute top-0 left-0 w-screen h-20 bg-neutral-900 flex items-center justify-between p-4"
+    >
+      <a href="/" class="text-4xl font-bold">🔗 ZEN LINK </a>
+      <a
+        href="https://github.com/nnisarggada/zen-link"
+        target="_blank"
+        class="text-4xl"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+    </nav>
+
+    <div
+      class="w-screen max-w-2xl h-[100dvh] flex flex-col items-center justify-center gap-6 p-4"
+    >
+      <h1 class="text-3xl">Shorten your links</h1>
+      <form
+        method="POST"
+        action="/shorten"
+        enctype="multipart/form-data"
+        onsubmit="return true"
+        class="w-full flex flex-col gap-4 p-4"
+      >
+        <div class="flex flex-col gap-2">
+          <label for="url" class="font-bold"> Enter Your URL </label>
+          <div class="flex items-center border border-white rounded-md p-2">
+            <input
+              type="text"
+              name="url"
+              id="url"
+              value=""
+              class="w-full bg-neutral-950 text-white focus:outline-none"
+            />
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <label for="short_url" class="font-bold">
+            Custom link (optional):
+          </label>
+          <div class="flex items-center border border-white rounded-md p-2">
+            <span>{{ host_url }}/</span>
+            <input
+              type="text"
+              name="short_url"
+              id="short_url"
+              value=""
+              class="w-full bg-neutral-950 text-white focus:outline-none"
+            />
+          </div>
+          <div>
+            <input
+              type="submit"
+              value="Shorten"
+              class="bg-blue-500 text-xl text-white font-bold py-2 px-4 rounded-lg cursor-pointer mt-4"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <footer
+      class="absolute bottom-0 left-0 w-screen h-12 bg-neutral-900 drop-shadow-2xl backdrop-opacity-10 flex items-center justify-center p-4"
+    >
+      <span class="text-sm">
+        Made with ❤️ by
+        <a
+          class="text-rose-500 underline hover:no-underline"
+          href="https://nnisarg.in"
+          target="_blank"
+        >
+          Nnisarg Gada
+        </a>
+      </span>
+    </footer>
+  </body>
+</html>
