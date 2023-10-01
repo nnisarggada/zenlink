@@ -5,7 +5,7 @@ Zen Link is a simple and user-friendly web-based URL shortening service that all
 ## Features
 
 - Shorten long URLs to create compact and easy-to-share links.
-- Customize shortened links with user-defined names (e.g., short.nnisarg.in/my-short-url).
+- Customize shortened links with user-defined names (e.g., `short.nnisarg.in/my-short-url`).
 - Easily copy and share shortened links with others.
 
 ## Getting Started
@@ -20,75 +20,81 @@ Follow these steps to set up and run Zen Link on your server.
 
 ### Installation
 
+Clone the Zen Link repository to your server:
+
 ```bash
-# Clone the Zen Link repository to your server
 git clone https://github.com/nnisarggada/zenlink
-
-# Navigate to the project directory
 cd zenlink
+```
 
-# Create a Python virtual environment and activate it
+Create a Python virtual environment and activate it:
+
+```bash
 python -m venv env
 source env/bin/activate
+```
 
-# Install the required dependencies from the requirements.txt file
+Install the required dependencies from the `requirements.txt` file:
+
+```bash
 pip install -r requirements.txt
 ```
 
 ### Configuration
 
-1. Edit the Zen Link configuration in the `main.py` file to customize settings such as the hosted URL and the time until links are deleted.
+Edit the Zen Link configuration in the `main.py` file to customize settings such as the hosted URL and the time until links are deleted. Modify the following variables as needed:
 
 ```python
-
-URL = "localhost" # Url of the hosted app
-MINUTES_TO_EXPIRE = 1 # Number of minutes before a short URL expires
-
+URL = "localhost"  # Url of the hosted app
+MINUTES_TO_EXPIRE = 1  # Number of minutes before a short URL expires
 ```
 
 ### Running the App
 
-1. Run the Zen Link app:
+Run the Zen Link app:
 
 ```bash
 gunicorn -b 0.0.0.0:80 main:app
 ```
 
-Here, `80` is the port on which the app will run.
+Here, `80` is the port on which the app will run. You can access the Zen Link web interface in your web browser at http://localhost:80.
 
-2. Access the Zen Link web interface in your web browser:
+## Usage
 
-   ```
-   http://localhost:80
-   ```
+You can use Zen Link to perform the following actions:
 
-### Usage
+### Shorten a URL
 
-1. Shorten a URL:
+1. Enter a long URL in the input field.
+2. Optionally, provide a custom short link name.
+3. Click "Shorten" to generate a shortened link.
 
-   - Enter a long URL in the input field.
-   - Optionally, provide a custom short link name.
-   - Click "Shorten" to generate a shortened link.
+### Share a Shortened URL
 
-2. Share a Shortened URL:
+Use the provided shortened link to share your original URL. Customize links for easier sharing.
 
-   - Use the provided shortened link to share your original URL.
-   - Customize links for easier sharing.
+### Delete Links
 
-3. Delete Files:
+Shortened links are automatically deleted after the configured time.
 
-   - Uploaded files are automatically deleted after the configured time.
+### Command-Line Usage (curl/wget)
 
-4. Command-Line Usage (curl/wget):
+Zen Link supports URL shortening using command-line tools like curl or wget. For example:
 
-   - Zen Link supports URL shortening using command-line tools like curl or wget. For example,
+```bash
+curl -X POST -F "url=example.com" -F "link=my-short-url" http://localhost:80/shorten
+```
 
-     ```bash
-     curl -X POST -F "url=example.com" -F "link=my-short-url" http://localhost:80/shorten
-     ```
-
-     This will shorten the URL `example.com` to a `http://localhost:80/my-short-url` that will get deleted after the configured time.
+This will shorten the URL `example.com` to http://localhost:80/my-short-url, which will get deleted after the configured time.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+We welcome contributions from the community! Please read our [Contribution Guidelines](CONTRIBUTING.md) for details on how to get started.
+
+## Code of Conduct
+
+We maintain a [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a welcoming and inclusive environment for all contributors and users.
