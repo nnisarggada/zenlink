@@ -46,7 +46,7 @@ Edit the Zen Link configuration in the `main.py` file to customize settings such
 
 ```python
 URL = "localhost"  # Url of the hosted app
-MINUTES_TO_EXPIRE = 1  # Number of minutes before a short URL expires
+MINUTES_TO_EXPIRE = 24 * 60  # Number of minutes before a short URL expires (Default is one day)
 ```
 
 ### Running the App
