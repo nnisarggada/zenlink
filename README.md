@@ -46,6 +46,7 @@ Edit the Zen Link configuration in the `main.py` file to customize settings such
 
 ```python
 URL = "localhost"  # Url of the hosted app
+PORT = 5000  # Port on which the app will run (Not for prod)
 MINUTES_TO_EXPIRE = 24 * 60  # Number of minutes before a short URL expires (Default is one day)
 ```
 
@@ -54,10 +55,10 @@ MINUTES_TO_EXPIRE = 24 * 60  # Number of minutes before a short URL expires (Def
 Run the Zen Link app:
 
 ```bash
-gunicorn -b 0.0.0.0:80 main:app
+gunicorn -b 0.0.0.0:5000 main:app
 ```
 
-Here, `80` is the port on which the app will run. You can access the Zen Link web interface in your web browser at http://localhost:80.
+Here, `5000` is the port on which the app will run. You can access the Zen Link web interface in your web browser at http://localhost:5000.
 
 ## Usage
 

@@ -4,6 +4,7 @@ import string
 import json
 import threading
 import time
+import os
 from datetime import datetime, timedelta
 
 # -------------------------------------------------------------------
@@ -11,21 +12,25 @@ from datetime import datetime, timedelta
 # -------------------------------------------------------------------
 
 URL = "localhost" # Url of the hosted app
+PORT = 5000 # Port of the hosted app (Not for prod)
 MINUTES_TO_EXPIRE = 24 * 60 # Number of minutes before a short URL expires
 
 # -------------------------------------------------------------------
 
 app = Flask(__name__)
 
-try:
-    with open('links_managed.json', 'r') as file:
-        url_database = json.load(file)
-except FileNotFoundError:
-    url_database = {}
+def load_url_database_from_file():
+    if os.path.exists('url_database.json'):
+        print("dasdasd")
+        with open('url_database.json', 'r') as json_file:
+            return json.load(json_file)
+    return {}
 
-def save_to_json():
-    with open('links_managed.json', 'w') as file:
-        json.dump(url_database, file)
+url_database = load_url_database_from_file()
+
+def save_url_database_to_file():
+    with open('url_database.json', 'w') as json_file:
+        json.dump(url_database, json_file)
 
 def generate_short_url():
     characters = string.ascii_letters + string.digits
@@ -44,7 +49,7 @@ def delete_expired_short_urls():
         for short_url in to_delete:
             del url_database[short_url]
 
-        save_to_json()
+        save_url_database_to_file()
 
         time.sleep(10)
 
@@ -69,7 +74,7 @@ def shorten():
     if not original_url:
         return ('Please provide a URL\n'), 400
 
-    if short_url in url_database or short_url.lower() == "shorten":
+    if short_url in url_database or short_url.lower() == "shorten" or short_url.lower() == "about":
         return ('Short URL already exists. Please choose a different one.\n'), 400
 
     creation_time = datetime.now()
@@ -79,7 +84,7 @@ def shorten():
         'expiration_time': expiration_time.strftime('%Y-%m-%d %H:%M:%S')
     }
 
-    save_to_json()
+    save_url_database_to_file()
 
     link = f'{URL}/{short_url}\n'
     clickable_link = f'\033]8;;{link}\033\\{link}\033]8;;\033\\'
@@ -104,5 +109,9 @@ def redirect_to_original(short_url):
     else:
         return ('Invalid Link\n'), 404
 
+@app.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html', full_url=URL)
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=PORT, debug=True)
