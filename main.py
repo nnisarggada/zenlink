@@ -86,13 +86,9 @@ def shorten():
 
     save_url_database_to_file()
 
-    link = f'{URL}/{short_url}\n'
-    clickable_link = f'\033]8;;{link}\033\\{link}\033]8;;\033\\'
-
-
     user_agent = request.headers.get('User-Agent')
     if 'curl' in user_agent.lower() or 'wget' in user_agent.lower():
-        return clickable_link
+        return "https://" + URL + "/" + short_url + "\n"
     else:
         return render_template('shortened.html', url=URL, link=short_url)
 
