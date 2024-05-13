@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 
 URL = "localhost" # Url of the hosted app
 PORT = 5000 # Port of the hosted app (Not for prod)
-MINUTES_TO_EXPIRE = 24 * 60 # Number of minutes before a short URL expires
+MINUTES_TO_EXPIRE = 24 * 60 # Number of minutes before a short URL expires (Default is one day)
 
 # -------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ delete_thread.start()
 def index():
     return render_template('index.html', host_url=URL)
 
-@app.route('/shorten', methods=['POST'])
+@app.route('/', methods=['POST'])
 def shorten():
     original_url = request.form['url']
 
@@ -74,7 +74,7 @@ def shorten():
     if not original_url:
         return ('Please provide a URL\n'), 400
 
-    if short_url in url_database or short_url.lower() == "shorten" or short_url.lower() == "about":
+    if short_url in url_database or short_url.lower() == "about":
         return ('Short URL already exists. Please choose a different one.\n'), 400
 
     creation_time = datetime.now()
@@ -90,7 +90,7 @@ def shorten():
     if 'curl' in user_agent.lower() or 'wget' in user_agent.lower():
         return "https://" + URL + "/" + short_url + "\n"
     else:
-        return render_template('shortened.html', url=URL, link=short_url)
+        return render_template('success.html', url=URL, link=short_url)
 
 
 @app.route('/<short_url>', methods=['GET'])
