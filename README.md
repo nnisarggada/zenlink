@@ -83,7 +83,7 @@ Shortened links are automatically deleted after the configured time.
 Zen Link supports URL shortening using command-line tools like curl or wget. For example:
 
 ```bash
-curl -X POST -F "url=example.com" -F "link=my-short-url" http://localhost:80/shorten
+curl -F "url=example.com" -F "short_url=my-short-url" http://localhost:80/shorten
 ```
 
 This will shorten the URL `example.com` to http://localhost:80/my-short-url, which will get deleted after the configured time.
