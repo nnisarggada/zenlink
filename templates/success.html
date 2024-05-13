@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔗 ZenLink | URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      src="https://kit.fontawesome.com/0b92670209.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      function copyToClipboard() {
+        var link = document.getElementById("file-link");
+        var textArea = document.createElement("textarea");
+        textArea.value = link.href;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        alert("Link copied to clipboard!");
+      }
+
+      function shareFile() {
+        if (navigator.share) {
+          navigator
+            .share({
+              title: "Short URL",
+              text: "Check out this link I shortened using short.nnisarg.in!",
+              url: "{{ link }}",
+            })
+            .then(() => {
+              console.log("Successfully shared");
+            })
+            .catch((error) => {
+              console.error("Error sharing:", error);
+            });
+        } else {
+          alert("Web Share API is not supported in this browser.");
+        }
+      }
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              poppins: ["Poppins"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body
+    class="bg-neutral-950 text-white font-poppins flex flex-col items-center justify-center"
+  >
+    <nav
+      class="absolute top-0 left-0 w-screen h-20 bg-neutral-900 flex items-center justify-between p-4"
+    >
+      <a href="/" class="text-4xl font-bold">🔗 ZenLink</a>
+      <a
+        href="https://github.com/nnisarggada/zenlink"
+        target="_blank"
+        class="text-4xl"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+    </nav>
+
+    <div
+      class="w-screen max-w-2xl h-[100dvh] flex flex-col items-center justify-center gap-6 p-4"
+    >
+      <h1 class="text-5xl mb-12">Share URL</h1>
+      <a
+        id="file-link"
+        href="{{ link }}"
+        target="_blank"
+        class="w-full text-center text-2xl italic underline truncate"
+      >
+        {{ url }}/{{ link }}</a
+      >
+      <div class="flex items-center gap-6">
+        <i class="fas fa-copy text-xl" onclick="copyToClipboard()"></i>
+        <i class="fas fa-share text-xl" onclick="shareFile()"></i>
+      </div>
+    </div>
+
+    <footer
+      class="absolute bottom-0 left-0 w-screen h-12 bg-neutral-900 drop-shadow-2xl backdrop-opacity-10 flex items-center justify-center p-4"
+    >
+      <span class="text-sm">
+        Made with ❤️ by
+        <a
+          class="text-rose-500 underline hover:no-underline"
+          href="https://nnisarg.in"
+          target="_blank"
+        >
+          Nnisarg Gada
+        </a>
+      </span>
+    </footer>
+  </body>
+</html>
