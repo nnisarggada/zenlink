@@ -21,7 +21,9 @@ app = Flask(__name__)
 
 def load_url_database_from_file():
     if os.path.exists('url_database.json'):
-        print("dasdasd")
+        if os.path.getsize('url_database.json') == 0:
+            with open('url_database.json', 'w') as json_file:
+                json_file.write('{}')
         with open('url_database.json', 'r') as json_file:
             return json.load(json_file)
     return {}
