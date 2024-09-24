@@ -4,22 +4,21 @@ Zen Link is a lightweight, web-based URL shortening service that allows you to s
 
 # Table of Contents
 
-- [Zen Link - Simple URL Shortener](#zen-link---simple-url-shortener)
-  - [Features](#features)
-  - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Configuration](#configuration)
-    - [Running the App](#running-the-app)
-  - [Usage](#usage)
-    - [Shorten a URL](#shorten-a-url)
-    - [Share a Shortened URL](#share-a-shortened-url)
-    - [Delete Links](#delete-links)
-    - [Command-Line Usage (curl/wget)](#command-line-usage-curlwget)
-  - [TODO](#todo)
-  - [License](#license)
-  - [Contributing](#contributing)
-  - [Code of Conduct](#code-of-conduct)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Running the App](#running-the-app)
+- [Usage](#usage)
+  - [Shorten a URL](#shorten-a-url)
+  - [Share a Shortened URL](#share-a-shortened-url)
+  - [Delete Links](#delete-links)
+  - [Command-Line Usage (curl/wget)](#command-line-usage-curlwget)
+- [TODO](#todo)
+- [License](#license)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
 
 ## Features
 
