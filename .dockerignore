@@ -1,0 +1,8 @@
+__pycache__/
+env/
+.env
+.env.sample
+.git/
+.gitignore
+*.md
+LICENSE
