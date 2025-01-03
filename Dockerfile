@@ -29,5 +29,4 @@ USER python
 EXPOSE 5000
 
 # Command to run the app
-# uwsgi --http :5000 --wsgi-file app.py --master --processes 4 --threads 2
-CMD ["uwsgi", "--http", ":5000", "--wsgi-file", "app.py", "--master", "--processes", "4", "--threads", "2"]
+CMD ["uwsgi", "--http", ":5000", "--wsgi-file", "main.py", "--master", "--processes", "4", "--threads", "2"]

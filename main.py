@@ -27,7 +27,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 
 # -------------------------------------------------------------------
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 
 # Connect to PostgreSQL database
@@ -91,12 +91,12 @@ def delete_expired_short_urls():
         time.sleep(10)  # Check every 10 seconds
 
 
-@app.route("/")
+@application.route("/")
 def index():
     return render_template("index.html", host_url=URL)
 
 
-@app.route("/", methods=["POST"])
+@application.route("/", methods=["POST"])
 def shorten():
     original_url = request.form["url"]
 
@@ -146,7 +146,7 @@ def shorten():
         return render_template("success.html", url=URL, link=short_url)
 
 
-@app.route("/<short_url>", methods=["GET"])
+@application.route("/<short_url>", methods=["GET"])
 def redirect_to_original(short_url: str):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -167,33 +167,18 @@ def redirect_to_original(short_url: str):
         return redirect("http://" + original_url)
 
 
-@app.route("/about", methods=["GET"])
+@application.route("/about", methods=["GET"])
 def about():
     return render_template("about.html", full_url=URL)
-
-
-def check_table_exists():
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM urls LIMIT 1;")
-        cur.fetchall()  # If the table exists, this won't raise an error
-        cur.close()
-        conn.close()
-    except Exception as e:
-        print("Table does not exist or another error occurred:", e)
-        raise
 
 
 if __name__ == "__main__":
     # Ensure the database table exists before starting the app
     create_table()
-    check_table_exists()  # This will check if the table exists
-
     # Start the background thread for deleting expired URLs
     delete_thread = threading.Thread(target=delete_expired_short_urls)
     delete_thread.daemon = True
     delete_thread.start()
 
     # Start the Flask app
-    app.run(host="0.0.0.0", port=PORT)
+    application.run(host="0.0.0.0", port=PORT)
