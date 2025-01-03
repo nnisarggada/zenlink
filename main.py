@@ -1,44 +1,63 @@
 from datetime import datetime, timedelta
-import json
-import os
 import random
 import string
 import threading
 import time
-
+import psycopg2
 from flask import Flask, redirect, render_template, request
+from dotenv import load_dotenv
+import os
+
+_ = load_dotenv()
 
 # -------------------------------------------------------------------
-# The following variables need to be changed before running the app:
+# The following variables are now loaded from the .env file:
 # -------------------------------------------------------------------
 
-URL = "localhost"  # Url of the hosted app
-PORT = 5000  # Port of the hosted app (Not for prod)
-MINUTES_TO_EXPIRE = (
-    24 * 60
-)  # Number of minutes before a short URL expires (Default is one day)
+URL = os.getenv("URL", "short.nnisarg.in")  # URL of the hosted app
+PORT = int(os.getenv("PORT", 5000))  # PORT of the hosted app
+# Expiration time in minutes
+MINUTES_TO_EXPIRE = int(os.getenv("MINUTES_TO_EXPIRE", 24 * 60))
+DB_HOST = os.getenv("DB_HOST", "localhost")  # PostgreSQL database hostname
+DB_PORT = int(os.getenv("DB_PORT", 5432))  # PostgreSQL database port
+DB_NAME = os.getenv("DB_NAME", "zenlink")  # PostgreSQL database name
+DB_USER = os.getenv("DB_USER", "user")  # PostgreSQL database user
+# PostgreSQL database password
+DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 
 # -------------------------------------------------------------------
 
 app = Flask(__name__)
 
 
-def load_url_database_from_file():
-    if os.path.exists("url_database.json"):
-        if os.path.getsize("url_database.json") == 0:
-            with open("url_database.json", "w") as json_file:
-                json_file.write("{}")
-        with open("url_database.json", "r") as json_file:
-            return json.load(json_file)
-    return {}
+# Connect to PostgreSQL database
+def get_db_connection():
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        port=DB_PORT,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+    )
+    return conn
 
 
-url_database = load_url_database_from_file()
-
-
-def save_url_database_to_file():
-    with open("url_database.json", "w") as json_file:
-        json.dump(url_database, json_file)
+# Create the URLs table if it doesn't exist
+def create_table():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS urls (
+            short_url TEXT PRIMARY KEY,
+            original_url TEXT NOT NULL,
+            expiration_time TIMESTAMP NOT NULL
+        );
+    """
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
 
 
 def generate_short_url():
@@ -48,27 +67,24 @@ def generate_short_url():
 
 def delete_expired_short_urls():
     while True:
-
         current_time = datetime.now()
-        to_delete = []
-        for short_url, data in url_database.items():
-            expiration_time = datetime.strptime(
-                data["expiration_time"], "%Y-%m-%d %H:%M:%S"
-            )
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT short_url, expiration_time FROM urls")
+        urls: list[tuple[str, datetime]] = cur.fetchall()
+
+        to_delete: list[str] = []
+        for short_url, expiration_time in urls:
             if current_time >= expiration_time:
                 to_delete.append(short_url)
 
         for short_url in to_delete:
-            del url_database[short_url]
+            cur.execute("DELETE FROM urls WHERE short_url = %s", (short_url,))
 
-        save_url_database_to_file()
-
-        time.sleep(10)
-
-
-delete_thread = threading.Thread(target=delete_expired_short_urls)
-delete_thread.daemon = True
-delete_thread.start()
+        conn.commit()
+        cur.close()
+        conn.close()
+        time.sleep(10)  # Check every 10 seconds
 
 
 @app.route("/")
@@ -88,19 +104,37 @@ def shorten():
     if not original_url:
         return ("Please provide a URL\n"), 400
 
-    if short_url in url_database or short_url.lower() == "about":
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Check if the short URL already exists
+    cur.execute("SELECT * FROM urls WHERE short_url = %s", (short_url.lower(),))
+    existing_url = cur.fetchone()
+
+    if existing_url or short_url.lower() == "about":
+        cur.close()
+        conn.close()
         return ("Short URL already exists. Please choose a different one.\n"), 400
 
+    # Insert the new URL mapping
     creation_time = datetime.now()
     expiration_time = creation_time + timedelta(minutes=MINUTES_TO_EXPIRE)
-    url_database[short_url.lower()] = {
-        "original_url": original_url,
-        "expiration_time": expiration_time.strftime("%Y-%m-%d %H:%M:%S"),
-    }
+    cur.execute(
+        """
+        INSERT INTO urls (short_url, original_url, expiration_time)
+        VALUES (%s, %s, %s)
+    """,
+        (short_url.lower(), original_url, expiration_time),
+    )
 
-    save_url_database_to_file()
+    conn.commit()
+    cur.close()
+    conn.close()
 
     user_agent = request.headers.get("User-Agent")
+    if not user_agent:
+        user_agent = "Unknown"
+
     if "curl" in user_agent.lower() or "wget" in user_agent.lower():
         return "https://" + URL + "/" + short_url + "\n"
     else:
@@ -108,16 +142,24 @@ def shorten():
 
 
 @app.route("/<short_url>", methods=["GET"])
-def redirect_to_original(short_url):
-    if short_url.lower() in url_database:
-        mapping = url_database[short_url.lower()]
-        original_url = mapping["original_url"]
-        if original_url.startswith("http"):
-            return redirect(original_url)
-        else:
-            return redirect("http://" + original_url)
-    else:
+def redirect_to_original(short_url: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT original_url FROM urls WHERE short_url = %s", (short_url.lower(),)
+    )
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if not result:
         return ("Invalid Link\n"), 404
+
+    original_url: str = result[0]
+    if original_url.startswith("http"):
+        return redirect(original_url)
+    else:
+        return redirect("http://" + original_url)
 
 
 @app.route("/about", methods=["GET"])
@@ -126,4 +168,8 @@ def about():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    create_table()
+    delete_thread = threading.Thread(target=delete_expired_short_urls)
+    delete_thread.daemon = True
+    delete_thread.start()
+    app.run(host="0.0.0.0", port=PORT)

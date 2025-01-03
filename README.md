@@ -2,14 +2,14 @@
 
 Zen Link is a lightweight, web-based URL shortening service that allows you to shorten long URLs quickly and easily. With Zen Link, you can create custom shortened links, making it easier to share and manage your URLs.
 
-# Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Configuration](#configuration)
-  - [Running the App](#running-the-app)
+  - [Running with Docker](#running-with-docker)
 - [Usage](#usage)
   - [Shorten a URL](#shorten-a-url)
   - [Share a Shortened URL](#share-a-shortened-url)
@@ -29,13 +29,10 @@ Zen Link is a lightweight, web-based URL shortening service that allows you to s
 
 ## Getting Started
 
-Follow these steps to set up and run Zen Link on your server.
-
 ### Prerequisites
 
-- Python 3.x
-- Flask (Python web framework)
-- pip (Python package manager)
+- Docker and Docker Compose
+- Python 3.x (for development purposes if you want to run the app outside Docker)
 
 ### Installation
 
@@ -46,46 +43,54 @@ git clone https://github.com/nnisarggada/zenlink
 cd zenlink
 ```
 
-Create a Python virtual environment and activate it:
-
-```bash
-python -m venv env
-source env/bin/activate
-```
-
-Install the required dependencies from the `requirements.txt` file:
-
-```bash
-pip install -r requirements.txt
-```
-
 ### Configuration
 
-Edit the Zen Link configuration in the `.env` or `main.py` file to customize settings such as the hosted URL, port, and expiration time for shortened links. Modify the following variables as needed:
+If you wish to modify configuration settings like the base URL (`URL`), port (`PORT`), and expiration time (`MINUTES_TO_EXPIRE`), you can do so in the `docker-compose.yml` file under the `environment` section. The default values are:
 
-```python
-# -------------------------------------------------------------------
-# The following configuration variables should be updated before running the app
-# -------------------------------------------------------------------
-
-URL = "localhost"  # URL of the hosted app
-PORT = 5000  # Port on which the app will run (Not for prod)
-MINUTES_TO_EXPIRE = 24 * 60  # Number of minutes before a short URL expires (Default is one day)
+```yaml
+app:
+  environment:
+    URL: "share.nnisarg.in" # Base URL of the hosted app
+    PORT: 5000 # Port on which the app will run (Not for prod)
+    MINUTES_TO_EXPIRE: 1440 # Number of minutes before a short URL expires (Default is one day)
+    DB_HOST: db # PostgreSQL container name
+    DB_PORT: 5432 # Default PostgreSQL port
+    DB_NAME: zenlink # PostgreSQL database name
+    DB_USER: user # PostgreSQL database user
+    DB_PASSWORD: password # PostgreSQL database password
 ```
 
-### Running the App
+### Running with Docker
 
-Run the Zen Link app:
+Zen Link uses Docker and Docker Compose to run both the Flask application and PostgreSQL in containers. Follow these steps to get started:
 
-```bash
-gunicorn -b 0.0.0.0:5000 main:app
-```
+1. **Build and Start the Docker Containers:**
 
-Here, `5000` is the port on which the app will run. You can access the Zen Link web interface in your web browser at [http://localhost:5000](http://localhost:5000).
+   First, ensure that Docker and Docker Compose are installed. Then, run the following command to build the containers and start the app and database:
+
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Access the App:**
+
+   After the containers have started, you can access the Zen Link app by visiting [http://localhost:5000](http://localhost:5000) in your web browser. The app will be running on port `5000`.
+
+3. **Stop the Containers:**
+
+   To stop the containers, use the following command:
+
+   ```bash
+   docker-compose down
+   ```
+
+4. **Health Check:**
+
+   The PostgreSQL container has a health check configured, which ensures that it is ready before the app container starts. If the health check fails, Docker will retry until PostgreSQL is available.
 
 ## Usage
 
-You can use Zen Link to perform the following actions:
+Zen Link supports the following features:
 
 ### Shorten a URL
 
@@ -99,7 +104,7 @@ Use the provided shortened link to share your original URL. Customize links for 
 
 ### Delete Links
 
-Shortened links are automatically deleted after the configured time.
+Shortened links are automatically deleted after the configured time (default: 1 day).
 
 ### Command-Line Usage (curl/wget)
 
