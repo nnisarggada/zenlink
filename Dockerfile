@@ -7,11 +7,6 @@ ENV PYTHONUNBUFFERED 1
 # Set working directory
 WORKDIR /app
 
-# Install build dependencies
-RUN apt-get install -y \
-  build-essential \
-  && rm -rf /var/lib/apt/lists/*
-
 # Create a non-root user and group for security
 RUN groupadd -r python && useradd -r -g python python
 
@@ -34,4 +29,4 @@ USER python
 EXPOSE 5000
 
 # Command to run the app
-CMD ["uwsgi", "--http", ":5000", "--wsgi-file", "main.py", "--master", "--processes", "4", "--threads", "2"]
+CMD ["python", "main.py"]
