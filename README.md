@@ -2,24 +2,6 @@
 
 Zen Link is a lightweight, web-based URL shortening service that allows you to shorten long URLs quickly and easily. With Zen Link, you can create custom shortened links, making it easier to share and manage your URLs.
 
-## Table of Contents
-
-- [Features](#features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-  - [Running with Docker](#running-with-docker)
-- [Usage](#usage)
-  - [Shorten a URL](#shorten-a-url)
-  - [Share a Shortened URL](#share-a-shortened-url)
-  - [Delete Links](#delete-links)
-  - [Command-Line Usage (curl/wget)](#command-line-usage-curlwget)
-- [TODO](#todo)
-- [License](#license)
-- [Contributing](#contributing)
-- [Code of Conduct](#code-of-conduct)
-
 ## Features
 
 - Shorten long URLs to create compact and easy-to-share links.
@@ -27,70 +9,82 @@ Zen Link is a lightweight, web-based URL shortening service that allows you to s
 - Automatic deletion of shortened links after a specified time.
 - Command-line support for URL shortening via curl or wget.
 
-## Getting Started
+## Deployment
 
 ### Prerequisites
 
-- Docker and Docker Compose
-- Python 3.x (for development purposes if you want to run the app outside Docker)
+- **Docker** and **Docker Compose** installed on your machine or server.
+- A running Docker environment.
 
-### Installation
+### Deployment Using Docker
 
-Clone the Zen Link repository to your server:
+Zen Link uses **Docker Compose** to manage both the app container and PostgreSQL database container. Deploying the app requires a few simple steps to adjust the configuration.
+
+#### Step 1: Clone the Repository
+
+Clone the Zen Link repository to your local machine or server:
 
 ```bash
 git clone https://github.com/nnisarggada/zenlink
 cd zenlink
 ```
 
-### Configuration
+#### Step 2: Configure `docker-compose.yml`
 
-If you wish to modify configuration settings like the base URL (`URL`), port (`PORT`), and expiration time (`MINUTES_TO_EXPIRE`), you can do so in the `docker-compose.yml` file under the `environment` section. The default values are:
+To configure the deployment, edit the `docker-compose.yml` file and modify the following variables:
 
-```yaml
-app:
-  environment:
-    URL: "share.nnisarg.in" # Base URL of the hosted app
-    PORT: 5000 # Port on which the app will run (Not for prod)
-    MINUTES_TO_EXPIRE: 1440 # Number of minutes before a short URL expires (Default is one day)
-    DB_HOST: db # PostgreSQL container name
-    DB_PORT: 5432 # Default PostgreSQL port
-    DB_NAME: zenlink # PostgreSQL database name
-    DB_USER: user # PostgreSQL database user
-    DB_PASSWORD: password # PostgreSQL database password
+- **URL**: Set the `URL` to the domain or IP address where you want the Zen Link app to be accessible (e.g., `"share.nnisarg.in"` or your public domain).
+- **MINUTES_TO_EXPIRE**: Set the `MINUTES_TO_EXPIRE` to the number of minutes after which the shortened links will be automatically deleted.
+- **NGINX PORT**: Set the `nginx.ports` to the port(s) that you want the NGINX container to listen on.
+
+#### Step 3: Set up the Database
+
+Zen Link uses PostgreSQL as its database, and the database container is configured in the same `docker-compose.yml` file. The default database name, user, and password are already set, but you can modify these if needed.
+
+#### Step 4: Running the Containers
+
+Once you've configured the `docker-compose.yml` file with your desired settings, run the following command to start the containers:
+
+```bash
+docker-compose up --build -d
 ```
 
-### Running with Docker
+This command will:
 
-Zen Link uses Docker and Docker Compose to run both the Flask application and PostgreSQL in containers. Follow these steps to get started:
+- Build the app container.
+- Start the PostgreSQL container.
+- Start the app container.
+- Start the NGINX container.
 
-1. **Build and Start the Docker Containers:**
+### Scaling the Application
 
-   First, ensure that Docker and Docker Compose are installed. Then, run the following command to build the containers and start the app and database:
+Zen Link is designed to scale horizontally by adding more app containers. You can dynamically scale the app containers using Docker Compose.
 
-   ```bash
-   docker-compose up --build
-   ```
+#### Step 1: Scale the Application Containers
 
-2. **Access the App:**
+You can change the number of replicas of the app service by modifying the `docker-compose.yml` file or by using the following command:
 
-   After the containers have started, you can access the Zen Link app by visiting [http://localhost:5000](http://localhost:5000) in your web browser. The app will be running on port `5000`.
+```bash
+docker-compose up --scale app=3 -d
+```
 
-3. **Stop the Containers:**
+This command will scale the `app` service to 3 replicas. The number of app replicas can be adjusted dynamically based on your traffic.
 
-   To stop the containers, use the following command:
+To scale the app containers while they are running, you can use the `docker-compose scale` command:
 
-   ```bash
-   docker-compose down
-   ```
+```bash
+docker-compose scale app=3
+```
 
-4. **Health Check:**
+### Access the App
 
-   The PostgreSQL container has a health check configured, which ensures that it is ready before the app container starts. If the health check fails, Docker will retry until PostgreSQL is available.
+Once the containers are running, you can access Zen Link in your web browser at the domain or IP address you specified in the `URL` variable. If you mapped port 8080, the app will be accessible at `http://localhost:8080`.
+
+---
 
 ## Usage
 
-Zen Link supports the following features:
+You can use Zen Link to perform the following actions:
 
 ### Shorten a URL
 
@@ -104,17 +98,19 @@ Use the provided shortened link to share your original URL. Customize links for 
 
 ### Delete Links
 
-Shortened links are automatically deleted after the configured time (default: 1 day).
+Shortened links are automatically deleted after the configured time.
 
 ### Command-Line Usage (curl/wget)
 
 Zen Link supports URL shortening using command-line tools like curl or wget. For example:
 
 ```bash
-curl -F "url=example.com" -F "short_url=my-short-url" http://localhost:5000/shorten
+curl -F "url=example.com" -F "short_url=my-short-url" http://localhost:8080/shorten
 ```
 
-This will shorten the URL `example.com` to [http://localhost:5000/my-short-url](http://localhost:5000/my-short-url), which will get deleted after the configured time.
+This will shorten the URL `example.com` to [http://localhost:8080/my-short-url](http://localhost:8080/my-short-url), which will get deleted after the configured time.
+
+---
 
 ## TODO
 
