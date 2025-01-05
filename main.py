@@ -14,8 +14,7 @@ _ = load_dotenv()
 # The following variables are now loaded from the .env file:
 # -------------------------------------------------------------------
 
-URL = os.getenv("URL", "short.nnisarg.in")  # URL of the hosted app
-PORT = int(os.getenv("PORT", 5000))  # PORT of the hosted app
+URL = os.getenv("URL", "https://short.nnisarg.in")  # URL of the hosted app
 # Expiration time in minutes
 MINUTES_TO_EXPIRE = int(os.getenv("MINUTES_TO_EXPIRE", 24 * 60))
 DB_HOST = os.getenv("DB_HOST", "localhost")  # PostgreSQL database hostname
@@ -62,9 +61,25 @@ def create_table():
     print("Created the URLs table if it doesn't exist")
 
 
-def generate_short_url():
+def generate_short_url() -> str:
     characters = string.ascii_letters + string.digits
-    return "".join(random.choice(characters) for _ in range(6))
+    url = "".join(random.choice(characters) for _ in range(6))
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM urls WHERE short_url = %s", (url,))
+    existing_url = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if existing_url:
+        return generate_short_url()
+    else:
+        return url
+
+
+def sanitize_url(url: str) -> str:
+    return url.replace(" ", "").strip().lower()
 
 
 def delete_expired_short_urls():
@@ -105,13 +120,14 @@ def shorten():
     if short_url == "":
         short_url = generate_short_url()
 
+    short_url = sanitize_url(short_url)
+
     if not original_url:
         return ("Please provide a URL\n"), 400
 
+    # Check if the short URL already exists
     conn = get_db_connection()
     cur = conn.cursor()
-
-    # Check if the short URL already exists
     cur.execute("SELECT * FROM urls WHERE short_url = %s", (short_url.lower(),))
     existing_url = cur.fetchone()
 
@@ -128,7 +144,7 @@ def shorten():
         INSERT INTO urls (short_url, original_url, expiration_time)
         VALUES (%s, %s, %s)
     """,
-        (short_url.lower(), original_url, expiration_time),
+        (short_url, original_url, expiration_time),
     )
 
     conn.commit()
@@ -181,4 +197,4 @@ if __name__ == "__main__":
     delete_thread.start()
 
     # Start the Flask app
-    application.run(host="0.0.0.0", port=PORT)
+    application.run(host="0.0.0.0", port=5000)

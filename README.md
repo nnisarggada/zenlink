@@ -5,7 +5,7 @@ Zen Link is a lightweight, web-based URL shortening service that allows you to s
 ## Features
 
 - Shorten long URLs to create compact and easy-to-share links.
-- Customize shortened links with user-defined names (e.g., `short.nnisarg.in/my-short-url`).
+- Customize shortened links with user-defined names (e.g., `https://short.nnisarg.in/my-short-url`).
 - Automatic deletion of shortened links after a specified time.
 - Command-line support for URL shortening via curl or wget.
 

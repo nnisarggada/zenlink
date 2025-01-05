@@ -77,7 +77,10 @@
             Custom link (optional):
           </label>
           <div class="flex items-center border border-white rounded-md p-2">
-            <span>{{ host_url }}/</span>
+            <span
+              >{{ host_url.replace("https://", "").replace("http://", "")
+              }}/</span
+            >
             <input
               type="text"
               name="short_url"
