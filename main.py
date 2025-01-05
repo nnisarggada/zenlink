@@ -177,7 +177,10 @@ def redirect_to_original(short_url: str):
         return ("Invalid Link\n"), 404
 
     original_url: str = result[0]
-    return redirect(original_url)
+    if original_url.startswith("http"):
+        return redirect(original_url)
+    else:
+        return redirect("http://" + original_url)
 
 
 @application.route("/about", methods=["GET"])
