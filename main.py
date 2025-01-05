@@ -157,7 +157,7 @@ def shorten():
         user_agent = "Unknown"
 
     if "curl" in user_agent.lower() or "wget" in user_agent.lower():
-        return "https://" + URL + "/" + short_url + "\n"
+        return URL + "/" + short_url + "\n"
     else:
         return render_template("success.html", url=URL, link=short_url)
 
@@ -177,6 +177,7 @@ def redirect_to_original(short_url: str):
         return ("Invalid Link\n"), 404
 
     original_url: str = result[0]
+    print(f"Redirected to {original_url} from {short_url}")
     if original_url.startswith("http"):
         return redirect(original_url)
     else:
