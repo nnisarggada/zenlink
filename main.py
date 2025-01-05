@@ -79,7 +79,7 @@ def generate_short_url() -> str:
 
 
 def sanitize_url(url: str) -> str:
-    return url.replace(" ", "").strip().lower()
+    return url.replace(" ", "_").strip().lower()
 
 
 def delete_expired_short_urls():
@@ -177,10 +177,7 @@ def redirect_to_original(short_url: str):
         return ("Invalid Link\n"), 404
 
     original_url: str = result[0]
-    if original_url.startswith("http"):
-        return redirect(original_url)
-    else:
-        return redirect("http://" + original_url)
+    return redirect(original_url)
 
 
 @application.route("/about", methods=["GET"])
